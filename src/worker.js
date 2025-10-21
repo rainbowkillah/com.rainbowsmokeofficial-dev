@@ -69,6 +69,24 @@ function extractErrorMessage(payload, fallback = "Failed to reach AI service") {
   return fallback;
 }
 
+async function generateSignedUrl(bucket, params) {
+  if (typeof bucket.createSignedUrl === "function") {
+    const signed = await bucket.createSignedUrl(params);
+    return typeof signed === "string" ? signed : signed?.toString?.() ?? null;
+  }
+  if (typeof bucket.createPresignedUrl === "function") {
+    const presigned = await bucket.createPresignedUrl(params);
+    if (!presigned) return null;
+    if (typeof presigned === "string") return presigned;
+    if (typeof presigned.url === "string") return presigned.url;
+    if (typeof presigned.toString === "function") {
+      return presigned.toString();
+    }
+    return null;
+  }
+  throw new Error("R2 bucket binding does not support signed URLs");
+}
+
 function parseCookies(value = "") {
   return value.split(/;\s*/).reduce((all, part) => {
     const [name, ...rest] = part.split("=");
@@ -139,17 +157,11 @@ async function getGalleryMedia(env) {
   });
   const items = [];
   for (const obj of listing.objects) {
-    const signedUrl = await env.MEDIA_BUCKET.createSignedUrl({
+    const url = await generateSignedUrl(env.MEDIA_BUCKET, {
       key: obj.key,
       method: "GET",
       expiration: 600
     });
-    const url =
-      typeof signedUrl === "string"
-        ? signedUrl
-        : signedUrl?.toString
-        ? signedUrl.toString()
-        : null;
     items.push({
       key: obj.key,
       name: obj.key.replace(GALLERY_MEDIA_PREFIX, ""),
