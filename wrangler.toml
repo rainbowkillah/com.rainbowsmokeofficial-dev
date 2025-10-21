@@ -38,3 +38,6 @@ bindings = [
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["VisitCounter"]
+
+[[ai]]
+binding = ai_gateway
