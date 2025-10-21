@@ -44,6 +44,31 @@ function notFound(message = "Not found") {
   return json({ error: message }, { status: 404 });
 }
 
+function extractErrorMessage(payload, fallback = "Failed to reach AI service") {
+  if (!payload) return fallback;
+  if (typeof payload === "string") {
+    const trimmed = payload.trim();
+    return trimmed || fallback;
+  }
+  if (typeof payload.error === "string" && payload.error.trim()) {
+    return payload.error.trim();
+  }
+  if (payload.error && typeof payload.error.message === "string") {
+    const candidate = payload.error.message.trim();
+    if (candidate) return candidate;
+  }
+  if (Array.isArray(payload.errors) && payload.errors.length) {
+    const first = payload.errors[0];
+    if (typeof first === "string" && first.trim()) {
+      return first.trim();
+    }
+    if (first && typeof first.message === "string" && first.message.trim()) {
+      return first.message.trim();
+    }
+  }
+  return fallback;
+}
+
 function parseCookies(value = "") {
   return value.split(/;\s*/).reduce((all, part) => {
     const [name, ...rest] = part.split("=");
@@ -193,10 +218,22 @@ async function handleAiChat(request, env) {
 
   if (!response.ok) {
     const text = await response.text();
-    return new Response(text || JSON.stringify({ error: "Failed to reach AI service" }), {
-      status: response.status,
-      headers: JSON_HEADERS
-    });
+    let payload = null;
+    if (text) {
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        payload = text;
+      }
+    }
+    const message = extractErrorMessage(payload);
+    return json(
+      {
+        error: message,
+        details: typeof payload === "string" ? undefined : payload
+      },
+      { status: response.status }
+    );
   }
 
   const aiResult = await response.json();

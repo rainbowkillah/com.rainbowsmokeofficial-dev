@@ -121,11 +121,14 @@
         });
         const result = await response.json();
         if (!response.ok) {
-          throw new Error(result?.error || 'AI is unavailable right now');
+          const errorMessage = pickErrorMessage(result);
+          const enrichedError = new Error(errorMessage);
+          enrichedError.details = result;
+          throw enrichedError;
         }
-        appendMessage('ai', result.reply?.trim() || 'Here to help!');
+        appendMessage('ai', formatAiReply(result.reply));
       } catch (error) {
-        appendMessage('ai', `Something went wrong: ${error.message}`);
+        appendMessage('ai', `Something went wrong: ${normaliseErrorMessage(error)}`);
       } finally {
         if (status) status.textContent = '';
       }
@@ -296,5 +299,46 @@
       return '/nsfw';
     }
     return path;
+  }
+
+  function pickErrorMessage(payload) {
+    if (!payload) return 'AI is unavailable right now';
+    if (typeof payload === 'string') return payload;
+    if (typeof payload.error === 'string') return payload.error;
+    if (payload.error && typeof payload.error.message === 'string') {
+      return payload.error.message;
+    }
+    if (Array.isArray(payload.errors) && payload.errors.length) {
+      const first = payload.errors[0];
+      if (typeof first === 'string') return first;
+      if (first && typeof first.message === 'string') return first.message;
+    }
+    return 'AI is unavailable right now';
+  }
+
+  function normaliseErrorMessage(error) {
+    if (!error) return 'AI is unavailable right now';
+    if (typeof error.message === 'string' && error.message !== '[object Object]') {
+      return error.message;
+    }
+    if (error.details) {
+      return pickErrorMessage(error.details);
+    }
+    return 'AI is unavailable right now';
+  }
+
+  function formatAiReply(reply) {
+    if (typeof reply === 'string') {
+      const trimmed = reply.trim();
+      if (trimmed) return trimmed;
+    }
+    if (reply && typeof reply === 'object') {
+      try {
+        return JSON.stringify(reply, null, 2);
+      } catch (error) {
+        // noop — fall through to default message
+      }
+    }
+    return 'Here to help!';
   }
 })();
