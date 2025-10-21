@@ -3,9 +3,9 @@ main = "src/worker.js"
 compatibility_date = "2024-06-25"
 
 [vars]
-ACCESS_CODE_SALT = "replace-with-random-salt"
+ACCESS_CODE_SALT = "cKy5nWwYDy8I9yhwjxcXBpaZVdYbI4SU"
 AI_MODEL = "@cf/meta/llama-3-8b-instruct"
-AI_GATEWAY_BASE_URL = "https://gateway.ai.cloudflare.com/v1/<account_id>/<gateway_name>"
+AI_GATEWAY_BASE_URL = "https://gateway.ai.cloudflare.com/v1/7fde695caf9cc41efca391316eb71003/ai_gateway"
 
 [observability]
 enabled = true
@@ -15,10 +15,6 @@ binding = "ASSETS"
 directory = "./public"
 html_handling = "auto-trailing-slash"
 cache_control = { browser_cache_ttl = 3600, edge_cache_ttl = 86400 }
-
-[[secrets_store_secrets]]
-binding = "default_secrets_store"
-store_id= "534dac0648944a0e918833c3301bd7d0"
 
 [[kv_namespaces]]
 binding = "SESSION_KV"
