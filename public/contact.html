@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact Mr. RainbowSmoke - techie, gamer, dancer!</title>
+    <meta
+      name="description"
+      content="The contact page of Mr. RainbowsSmoke - TikTok, Youtube, Twitch, X, Chaturbate and more"
+    />
+    <link rel="stylesheet" href="https://use.typekit.net/ojc8wen.css" />
+    <link rel="stylesheet" href="/styles/site.css" />
+    <link rel="icon" href="/assets/profile.svg" type="image/svg+xml" />
+  </head>
+  <body data-page="contact">
+    <header>
+      <div class="header-inner">
+        <div class="brand">
+          <img src="/assets/profile.svg" alt="Mr RainbowSmoke" />
+          <div>
+            <h1>Reach Out</h1>
+            <div class="pill">Contact · Collaborate · Connect</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="/" data-nav-link>Home</a>
+          <a href="/about" data-nav-link>About</a>
+          <a href="/contact" data-nav-link>Contact</a>
+          <a href="/gallery" data-nav-link>Gallery</a>
+          <a href="/privacy" data-nav-link>Privacy</a>
+          <a href="/nsfw" data-nav-link>MembersOnly NSFW</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-card">
+          <h2>Welcome to the official landing path of Mr. RainbowSmoke</h2>
+          <p>Drop your info, let me know why you’re here, and snag your MembersOnly access credential.</p>
+        </div>
+        <div class="hero-card">
+          <h3>Stay in Touch</h3>
+          <p>Collabs, coaching, tech consulting, gaming squads, IRL events — I get back fast.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h3>Contact Form</h3>
+        <form id="contact-form">
+          <div class="card-grid">
+            <label>
+              First Name
+              <input name="firstName" type="text" required placeholder="Rainbow" />
+            </label>
+            <label>
+              Last Name
+              <input name="lastName" type="text" required placeholder="Smoke" />
+            </label>
+          </div>
+          <div class="card-grid">
+            <label>
+              Email
+              <input name="email" type="email" required placeholder="you@example.com" />
+            </label>
+            <label>
+              Mobile Number
+              <input name="mobile" type="tel" placeholder="+1 (202) 555-0110" />
+            </label>
+          </div>
+          <label>
+            Discord Username
+            <input name="discord" type="text" placeholder="rainbowsmoke#2024" />
+          </label>
+          <div>
+            <span class="label">What brings you here?</span>
+            <div class="checkbox-row">
+              <label>
+                <input type="checkbox" name="interest" value="Tech" /> Tech
+              </label>
+              <label>
+                <input type="checkbox" name="interest" value="Gaming" /> Gaming
+              </label>
+              <label>
+                <input type="checkbox" name="interest" value="IRL" /> IRL
+              </label>
+              <label>
+                <input type="checkbox" name="interest" value="MembersOnly" /> MembersOnly / NSFW
+              </label>
+            </div>
+          </div>
+          <label>
+            Message
+            <textarea name="message" placeholder="Tell me everything..."></textarea>
+          </label>
+          <input type="submit" value="Send Message" />
+          <div id="contact-status" class="status"></div>
+        </form>
+      </section>
+
+      <section class="section">
+        <div class="notice">
+          <strong>Data Storage:</strong> Submissions land in a Cloudflare D1 database and Durable Objects track visit
+          counts. Sessions &amp; NSFW access are secured via KV.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <div>© <span id="year"></span> Mr. RainbowSmoke. Let’s build together.</div>
+        <div>D1 handles the form data. Your privacy matters.</div>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="/scripts/main.js" defer></script>
+    <script
+      type="text/javascript"
+      src="https://res.public.onecdn.static.microsoft/customerconnect/v1/7dttl/init.js"
+      id="chatbot"
+      environmentId="6c9a37bc-a1b7-e14e-8f55-85f46c310501"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

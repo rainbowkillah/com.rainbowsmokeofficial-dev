@@ -1,0 +1,40 @@
+name = "rainbowsmokeofficial"
+main = "src/worker.js"
+compatibility_date = "2024-06-25"
+
+[vars]
+ACCESS_CODE_SALT = "replace-with-random-salt"
+AI_MODEL = "@cf/meta/llama-3-8b-instruct"
+AI_GATEWAY_BASE_URL = "https://gateway.ai.cloudflare.com/v1/<account_id>/<gateway_name>"
+
+[observability]
+enabled = true
+
+[assets]
+binding = "ASSETS"
+directory = "./public"
+html_handling = "auto"
+cache_control = { browser_cache_ttl = 3600, edge_cache_ttl = 86400 }
+
+[[kv_namespaces]]
+binding = "SESSION_KV"
+id = "TODO_REPLACE_WITH_KV_ID"
+preview_id = "TODO_REPLACE_WITH_PREVIEW_KV_ID"
+
+[[d1_databases]]
+binding = "RAINBOW_DB"
+database_name = "rainbow_db"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "rainbow-media"
+
+[[durable_objects]]
+bindings = [
+  { name = "VisitCounter", class_name = "VisitCounter" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["VisitCounter"]
