@@ -114,17 +114,11 @@ async function getGalleryMedia(env) {
   });
   const items = [];
   for (const obj of listing.objects) {
-    const signedUrl = await env.MEDIA_BUCKET.createSignedUrl({
+    const url = await generateSignedUrl(env.MEDIA_BUCKET, {
       key: obj.key,
       method: "GET",
       expiration: 600
     });
-    const url =
-      typeof signedUrl === "string"
-        ? signedUrl
-        : signedUrl?.toString
-        ? signedUrl.toString()
-        : null;
     items.push({
       key: obj.key,
       name: obj.key.replace(GALLERY_MEDIA_PREFIX, ""),
