@@ -8,6 +8,6 @@
     "d1:migrate": "wrangler d1 migrations apply RAINBOW_DB"
   },
   "devDependencies": {
-    "wrangler": "^4.43.0"
+    "wrangler": "^4.44.0"
   }
 }
