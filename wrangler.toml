@@ -14,7 +14,7 @@ enabled = true
 binding = "ASSETS"
 directory = "./public"
 html_handling = "auto-trailing-slash"
-cache_control = { browser_cache_ttl = 3600, edge_cache_ttl = 86400 }
+
 
 [[kv_namespaces]]
 binding = "SESSION_KV"
@@ -38,6 +38,3 @@ bindings = [
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["VisitCounter"]
-
-[[ai]]
-binding = ai_gateway
