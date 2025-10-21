@@ -44,6 +44,31 @@ function notFound(message = "Not found") {
   return json({ error: message }, { status: 404 });
 }
 
+function extractErrorMessage(payload, fallback = "Failed to reach AI service") {
+  if (!payload) return fallback;
+  if (typeof payload === "string") {
+    const trimmed = payload.trim();
+    return trimmed || fallback;
+  }
+  if (typeof payload.error === "string" && payload.error.trim()) {
+    return payload.error.trim();
+  }
+  if (payload.error && typeof payload.error.message === "string") {
+    const candidate = payload.error.message.trim();
+    if (candidate) return candidate;
+  }
+  if (Array.isArray(payload.errors) && payload.errors.length) {
+    const first = payload.errors[0];
+    if (typeof first === "string" && first.trim()) {
+      return first.trim();
+    }
+    if (first && typeof first.message === "string" && first.message.trim()) {
+      return first.message.trim();
+    }
+  }
+  return fallback;
+}
+
 function parseCookies(value = "") {
   return value.split(/;\s*/).reduce((all, part) => {
     const [name, ...rest] = part.split("=");
@@ -114,11 +139,7 @@ async function getGalleryMedia(env) {
   });
   const items = [];
   for (const obj of listing.objects) {
-    const url = await generateSignedUrl(env.MEDIA_BUCKET, {
-      key: obj.key,
-      method: "GET",
-      expiration: 600
-    });
+    const url = `/media/gallery/${encodeURIComponent(obj.key)}`;
     items.push({
       key: obj.key,
       name: obj.key.replace(GALLERY_MEDIA_PREFIX, ""),
@@ -156,6 +177,20 @@ async function streamNsfwMedia(env, key) {
   return new Response(object.body, { status: 200, headers });
 }
 
+async function streamGalleryMedia(env, key) {
+  if (!key.startsWith(GALLERY_MEDIA_PREFIX)) {
+    return forbidden("Invalid media key");
+  }
+  const object = await env.MEDIA_BUCKET.get(key);
+  if (!object) {
+    return notFound("Media not found");
+  }
+  const headers = new Headers();
+  headers.set("content-type", object.httpMetadata?.contentType || "application/octet-stream");
+  headers.set("cache-control", "public, max-age=600");
+  return new Response(object.body, { status: 200, headers });
+}
+
 async function handleAiChat(request, env) {
   const body = await request.json().catch(() => null);
   if (!body || !body.prompt) {
@@ -187,10 +222,22 @@ async function handleAiChat(request, env) {
 
   if (!response.ok) {
     const text = await response.text();
-    return new Response(text || JSON.stringify({ error: "Failed to reach AI service" }), {
-      status: response.status,
-      headers: JSON_HEADERS
-    });
+    let payload = null;
+    if (text) {
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        payload = text;
+      }
+    }
+    const message = extractErrorMessage(payload);
+    return json(
+      {
+        error: message,
+        details: typeof payload === "string" ? undefined : payload
+      },
+      { status: response.status }
+    );
   }
 
   const aiResult = await response.json();
@@ -409,6 +456,17 @@ export default {
 
       if (pathname === "/api/nsfw/content" && request.method === "GET") {
         return await handleNsfwContent(request, env);
+      }
+
+      if (pathname.startsWith("/media/gallery/") && request.method === "GET") {
+        const encodedKey = pathname.replace("/media/gallery/", "");
+        let key;
+        try {
+          key = decodeURIComponent(encodedKey);
+        } catch (error) {
+          return badRequest("Invalid media key");
+        }
+        return await streamGalleryMedia(env, key);
       }
 
       if (pathname.startsWith("/media/nsfw/") && request.method === "GET") {

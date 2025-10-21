@@ -121,11 +121,13 @@
         });
         const result = await response.json();
         if (!response.ok) {
-          throw new Error(result?.error || 'AI is unavailable right now');
+          const enrichedError = new Error(pickErrorMessage(result));
+          enrichedError.details = result;
+          throw enrichedError;
         }
-        appendMessage('ai', result.reply?.trim() || 'Here to help!');
+        appendMessage('ai', formatAiReply(result.reply));
       } catch (error) {
-        appendMessage('ai', `Something went wrong: ${error.message}`);
+        appendMessage('ai', `Something went wrong: ${normaliseErrorMessage(error)}`);
       } finally {
         if (status) status.textContent = '';
       }
@@ -172,7 +174,7 @@
       .catch((error) => {
         console.error(error);
         if (galleryStatus) {
-          galleryStatus.textContent = 'Unable to load gallery right now.';
+          galleryStatus.textContent = `Unable to load gallery right now. ${error?.message || ''}`.trim();
         }
       });
 
@@ -296,5 +298,54 @@
       return '/nsfw';
     }
     return path;
+  }
+
+  function pickErrorMessage(payload) {
+    if (!payload) return 'AI is unavailable right now';
+    if (typeof payload === 'string') {
+      return payload;
+    }
+    if (typeof payload.error === 'string' && payload.error.trim()) {
+      return payload.error.trim();
+    }
+    if (payload.error && typeof payload.error.message === 'string') {
+      return payload.error.message.trim() || 'AI is unavailable right now';
+    }
+    if (Array.isArray(payload.errors) && payload.errors.length) {
+      const first = payload.errors[0];
+      if (typeof first === 'string' && first.trim()) {
+        return first.trim();
+      }
+      if (first && typeof first.message === 'string' && first.message.trim()) {
+        return first.message.trim();
+      }
+    }
+    return 'AI is unavailable right now';
+  }
+
+  function normaliseErrorMessage(error) {
+    if (!error) return 'AI is unavailable right now';
+    if (typeof error.message === 'string' && error.message !== '[object Object]') {
+      return error.message;
+    }
+    if (error.details) {
+      return pickErrorMessage(error.details);
+    }
+    return 'AI is unavailable right now';
+  }
+
+  function formatAiReply(reply) {
+    if (typeof reply === 'string') {
+      const trimmed = reply.trim();
+      if (trimmed) return trimmed;
+    }
+    if (reply && typeof reply === 'object') {
+      try {
+        return JSON.stringify(reply, null, 2);
+      } catch (error) {
+        // ignore and fall back
+      }
+    }
+    return 'Here to help!';
   }
 })();
