@@ -76,3 +76,9 @@ Desktop.ini
 !.env.example
 .envrc
 .environment
+
+# project specific
+*.toml
+.*jsonc
+AGENTS.md
+cloudflare-developer-documentation.md
