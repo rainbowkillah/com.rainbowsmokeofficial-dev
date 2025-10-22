@@ -83,5 +83,5 @@ Desktop.ini
 AGENTS*.md
 cloudflare-developer-documentation.md
 /.wrangler
-llms*.md
+/llms/*
 
