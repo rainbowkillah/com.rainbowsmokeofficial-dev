@@ -78,8 +78,6 @@ Desktop.ini
 .environment
 
 # project specific
-*.toml
-.*jsonc
 AGENTS*.md
 cloudflare-developer-documentation.md
 /.wrangler
